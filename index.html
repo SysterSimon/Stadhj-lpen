@@ -44,10 +44,23 @@ R('Barnrum 1',[T('Plocka i ordning',10),T('Damma',4),T('Dammsug',4),T('Våttorka
 R('Barnrum 2',[T('Plocka i ordning',10),T('Damma',4),T('Dammsug',4),T('Våttorka',2)]),
 R('Sovrum 1',[T('Plocka i ordning',6),T('Damma',3),T('Dammsug',4),T('Våttorka',2)]),
 R('Sovrum 2',[T('Plocka i ordning',6),T('Damma',3),T('Dammsug',4),T('Våttorka',2)]),
-R('Övriga golv',[T('Dammsug resterande ytor',20),T('Våttorka resterande ytor',20)]),
+R('Vardagsrum',[T('Plocka i ordning',8),T('Dammsug',8),T('Våttorka',5)]),
+R('Övre hall och trappa',[T('Plocka undan',4),T('Damma räcke och lister',4),T('Dammsug',7),T('Våttorka',5)]),
+R('Övriga golv',[T('Dammsug resterande ytor',12),T('Våttorka resterande ytor',12)]),
 R('Slutfix',[T('Sopor, bäddning och sista plocket',10)])]};
 function R(name,tasks=[]){return{id:ID(),name,tasks,reward:false,start:null,end:null}}
 let s;try{s=JSON.parse(localStorage.getItem(K))||structuredClone(defaults)}catch{s=structuredClone(defaults)}
+const extraRooms=[
+  R('Vardagsrum',[T('Plocka i ordning',8),T('Dammsug',8),T('Våttorka',5)]),
+  R('Övre hall och trappa',[T('Plocka undan',4),T('Damma räcke och lister',4),T('Dammsug',7),T('Våttorka',5)])
+];
+for(const nr of extraRooms){
+  if(!s.rooms.some(r=>r.name===nr.name)){
+    const ix=s.rooms.findIndex(r=>r.name==='Övriga golv');
+    s.rooms.splice(ix>=0?ix:s.rooms.length,0,nr);
+  }
+}
+localStorage.setItem(K,JSON.stringify(s));
 let editR=null,editT=null,tick=null,defer=null;
 const save=()=>localStorage.setItem(K,JSON.stringify(s)),adj=t=>Math.max(1,Math.round(t.minutes*t.pct/100*s.gp/100)),elapsed=t=>(t.elapsed||0)+(t.start?Date.now()-t.start:0),rplan=r=>r.tasks.reduce((a,t)=>a+adj(t)*60000,0),re=r=>r.start?((r.end||Date.now())-r.start):0;
 function esc(x){return String(x).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
